@@ -28,7 +28,10 @@
         }
     },
     "scripts": {
-        "test": "vendor/bin/phpunit"
+        "test": [
+            "@putenv XDEBUG_MODE=coverage",
+            "phpunit --coverage-text"
+        ]
     },
     "config": {
         "preferred-install": "dist",
