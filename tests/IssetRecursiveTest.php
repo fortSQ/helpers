@@ -1,72 +1,43 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-class IssetRecursiveTest extends TestCase
+final class IssetRecursiveTest extends TestCase
 {
-    public function testOneKey()
+    public static function positiveDataProvider(): array
     {
-        $data = ['test' => true];
-        $result = isset_recursive('test', $data);
-
-        $this->assertTrue($result);
+        return [
+            [['test' => true], 'test'],
+            [['test' => true], ['test']],
+            [['test' => true, 'check' => false], 'test'],
+            [['test' => ['check' => true]], 'test'],
+            [['test' => ['check' => true]], ['test','check']],
+            [['test' => ['check' => ['ok' => true]]], ['test','check', 'ok']],
+        ];
     }
 
-    public function testOneKeyAsArray()
+    public static function negativeDataProvider(): array
     {
-        $data = ['test' => true];
-        $result = isset_recursive(['test'], $data);
-
-        $this->assertTrue($result);
+        return [
+            [['test' => true], 'check'],
+            [['test' => ['check' => true]], ['test', 'ok']],
+        ];
     }
 
-    public function testMultipleKey()
+    #[DataProvider('positiveDataProvider')]
+    public function testExisting(array $data, string|array $key): void
     {
-        $data = ['test' => true, 'check' => false];
-        $result = isset_recursive('test', $data);
-
-        $this->assertTrue($result);
+        $this->assertTrue(isset_recursive($key, $data));
     }
 
-    public function testNestedArray()
+    #[DataProvider('negativeDataProvider')]
+    public function testNonExisting(array $data, string|array $key): void
     {
-        $data = ['test' => ['check' => true]];
-        $result = isset_recursive('test', $data);
-
-        $this->assertTrue($result);
-    }
-
-    public function testNestedKey()
-    {
-        $data = ['test' => ['check' => true]];
-        $result = isset_recursive(['test','check'], $data);
-
-        $this->assertTrue($result);
-    }
-
-    public function testMultipleNesting()
-    {
-        $data = ['test' => ['check' => ['ok' => true]]];
-        $result = isset_recursive(['test','check', 'ok'], $data);
-
-        $this->assertTrue($result);
-    }
-
-    public function testNotExistingKey()
-    {
-        $data = ['test' => true];
-        $result = isset_recursive('check', $data);
-
-        $this->assertFalse($result);
-    }
-
-    public function testNotExistingNestedKey()
-    {
-        $data = ['test' => ['check' => true]];
-        $result = isset_recursive(['test', 'ok'], $data);
-
-        $this->assertFalse($result);
+        $this->assertFalse(isset_recursive($key, $data));
     }
 }
