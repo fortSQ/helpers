@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.0]
+        php: [8.3]
 
     name: PHP ${{ matrix.php }}
 
@@ -32,4 +32,4 @@ jobs:
         run: composer install --no-interaction --prefer-dist
 
       - name: Execute tests
-        run: vendor/bin/phpunit --verbose
+        run: vendor/bin/phpunit
